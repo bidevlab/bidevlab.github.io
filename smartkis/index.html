@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SmartKis — BiDevLab</title>
+<style>
+  :root {
+    --ink: #14130E;
+    --muted: #57523F;
+    --faint: #8A8474;
+    --line: #E3DCCB;
+    --paper: #FBF9F3;
+    --card: #FFFFFF;
+    --gold: #B8871A;
+    --pos: #1D7A50;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Heebo", "Assistant", -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 72px; }
+  .rule { height: 3px; background: var(--gold); border-radius: 2px; margin-bottom: 26px; }
+
+  h1 { font-size: 30px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -0.4px; }
+  h2 {
+    font-size: 20px; margin: 38px 0 10px; letter-spacing: -0.2px;
+    padding-top: 18px; border-top: 1px solid var(--line);
+  }
+  h2:first-of-type { border-top: 0; padding-top: 0; }
+  h3 { font-size: 16px; margin: 22px 0 6px; }
+  p, li { color: var(--muted); }
+  li { margin-bottom: 6px; }
+  strong { color: var(--ink); }
+  a { color: var(--gold); }
+
+  .updated { color: var(--faint); font-size: 14px; margin: 0 0 8px; }
+  .lead { font-size: 17px; color: var(--ink); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 4px 20px 14px; margin: 18px 0;
+  }
+  .card.good { border-color: #BFE3CE; background: #F4FBF6; }
+  .card.good h3 { color: var(--pos); }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 15px; }
+  th, td {
+    text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line);
+    vertical-align: top; color: var(--muted);
+  }
+  th { color: var(--ink); font-weight: 700; white-space: nowrap; }
+
+  .langbar { margin-bottom: 22px; font-size: 15px; }
+  .langbar a { margin-right: 14px; }
+  .foot { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+
+  /* The Hebrew half of the same document. */
+  section[dir="rtl"] { direction: rtl; text-align: right; }
+  section[dir="rtl"] th, section[dir="rtl"] td { text-align: right; }
+  section[dir="rtl"] .langbar a { margin-right: 0; margin-left: 14px; }
+  .ltr { direction: ltr; unicode-bidi: isolate; }
+
+  @media (max-width: 520px) {
+    .wrap { padding: 28px 16px 56px; }
+    h1 { font-size: 25px; }
+    table, th, td { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section id="en" dir="ltr">
+  <div class="rule"></div>
+
+  <h1>SmartKis</h1>
+  <p class="updated">BiDevLab</p>
+
+  <p class="lead">
+    A Hebrew, right-to-left money tracker for individuals and small businesses.
+    Record income and expenses, set a budget and a savings goal, attach receipts,
+    and export a PDF report.
+  </p>
+
+  <div class="card">
+    <h3>Legal documents</h3>
+    <ul>
+      <li><a href="privacy-policy.html">Privacy Policy</a> — what the app collects, where it is kept, and who else sees it.</li>
+      <li><a href="terms-of-use.html">Terms of Use</a> — the subscription, renewal, cancellation and refunds.</li>
+    </ul>
+  </div>
+
+  <h2>Support</h2>
+  <p>
+    Questions, bug reports or account requests:
+    <a class="ltr" href="mailto:bidevlab@gmail.com">bidevlab@gmail.com</a>.
+    A real person reads it.
+  </p>
+</section>
+
+<section id="he" dir="rtl" lang="he" style="margin-top:56px">
+  <div class="rule"></div>
+
+  <h1>SmartKis</h1>
+  <p class="updated">BiDevLab</p>
+
+  <p class="lead">
+    אפליקציה בעברית לניהול כסף ליחידים ולעסקים קטנים. רישום הכנסות והוצאות,
+    תקציב ויעד חיסכון, צירוף קבלות וייצוא דוח PDF.
+  </p>
+
+  <div class="card">
+    <h3>מסמכים משפטיים</h3>
+    <ul>
+      <li><a href="privacy-policy.html">מדיניות פרטיות</a> — מה האפליקציה אוספת, איפה זה נשמר ומי עוד רואה את זה.</li>
+      <li><a href="terms-of-use.html">תנאי שימוש</a> — המנוי, החידוש, הביטול וההחזרים.</li>
+    </ul>
+  </div>
+
+  <h2>תמיכה</h2>
+  <p>
+    שאלות, דיווח על תקלה או בקשות בנוגע לחשבון:
+    <a class="ltr" href="mailto:bidevlab@gmail.com">bidevlab@gmail.com</a>.
+    אדם אמיתי קורא את זה.
+  </p>
+</section>
+
+<div class="foot">SmartKis · BiDevLab · bidevlab@gmail.com</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>SmartKis — Confirm your email</title>
+<!--
+  Address confirmation, for a browser. The sibling of reset-password.html, and
+  it exists for the same reason: `smartkis://` is a dead link on the desktop
+  where a great many people read their email. Here it matters more than it does
+  for a reset — until this link is clicked, a new account cannot sign in at all.
+
+  It handles both confirmations Supabase sends:
+
+    ?token_hash=...&type=signup        a new account proving its address
+    ?token_hash=...&type=email_change  an existing account moving to a new one
+
+  The second has a wrinkle worth knowing. With "Secure email change" enabled,
+  Supabase asks *both* addresses to confirm, and the change only lands when the
+  second one does. `verifyOtp` reports success either way, so this page reads
+  `user.new_email` afterwards: still set means one side is outstanding, and
+  saying so beats a page that claims the job is finished when it is half done.
+
+  Deliberately no form. There is nothing to type, so this page only ever
+  reports — and it signs out immediately, because the session `verifyOtp`
+  mints is a side effect of confirming, not something a browser on a shared
+  computer should keep.
+
+  The key is the publishable one: public by design, already inside the App
+  Store binary, every table behind RLS.
+-->
+<style>
+  :root {
+    --bg:#F6F3EC; --surface:#FFFFFF; --ink:#15140F; --ink-soft:#6B6659;
+    --ink-faint:#A49E8E; --gold:#E0AE38; --gold-deep:#C08D1E;
+    --income:#2E8F63; --income-wash:#E4F1EA; --expense:#C4483F;
+    --line:rgba(21,20,15,0.07); --line-strong:rgba(21,20,15,0.12);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .card {
+    width:100%; max-width:420px; background:var(--surface); border-radius:20px;
+    border:1px solid var(--line); padding:28px 24px 24px;
+    box-shadow:0 18px 48px rgba(21,20,15,0.08);
+  }
+  .mark {
+    width:52px; height:52px; border-radius:16px; margin:0 0 18px;
+    background:linear-gradient(135deg,#F6D67A,#C08D1E);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:22px; color:#15140F;
+  }
+  h1 { font-size:24px; line-height:1.25; letter-spacing:-0.4px; margin:0 0 8px; }
+  p.lead { color:var(--ink-soft); margin:0 0 4px; font-size:15px; }
+  .who {
+    margin:16px 0 0; padding:12px 14px; border-radius:12px;
+    background:var(--income-wash); color:var(--ink); font-size:14px;
+    /* An address is an LTR island in both languages, as it is in the app. */
+    direction:ltr; text-align:left; word-break:break-all;
+  }
+  .pending {
+    margin:16px 0 0; padding:12px 14px; border-radius:12px;
+    background:#FBF1D9; color:var(--ink); font-size:14px;
+  }
+  .note { font-size:13px; color:var(--ink-faint); margin:16px 0 0; }
+  .hidden { display:none !important; }
+  a.applink {
+    display:block; text-align:center; margin:18px 0 0; padding:13px;
+    border-radius:14px; text-decoration:none; font-weight:600; font-size:15px;
+    color:#15140F; background:linear-gradient(135deg,#F6D67A,#E0AE38);
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="mark">S</div>
+
+  <div id="stage-loading">
+    <h1 data-t="checking"></h1>
+    <p class="lead" data-t="checkingBody"></p>
+  </div>
+
+  <div id="stage-error" class="hidden">
+    <h1 data-t="deadTitle"></h1>
+    <p class="lead" data-t="deadBody"></p>
+    <p class="note" id="errDetail"></p>
+  </div>
+
+  <div id="stage-done" class="hidden">
+    <h1 id="doneTitle"></h1>
+    <p class="lead" id="doneBody"></p>
+    <div class="who hidden" id="who"></div>
+    <div class="pending hidden" id="pending"></div>
+    <a class="applink hidden" id="openApp" href="smartkis://" data-t="openApp"></a>
+    <p class="note" id="closeNote" data-t="closeNote"></p>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://hsdzyvlytqfhbcygbmrd.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_EfvhJGXO5k-Y4vREvYIPTw_DWjEXrAm';
+
+const STRINGS = {
+  en: {
+    checking: 'One moment',
+    checkingBody: 'Confirming your email address.',
+    deadTitle: 'This link has expired',
+    deadBody: 'Confirmation links work once and they do not last long. Open SmartKis and ask for a new one — signing up again with the same address will send a fresh link.',
+    signupTitle: 'Email confirmed',
+    signupBody: 'Your address is verified. Open SmartKis and sign in — everything is ready.',
+    changeTitle: 'Address confirmed',
+    changeBody: 'This address has been confirmed for your SmartKis account.',
+    pending: 'One more step: for your security we also asked your previous address to confirm. The change takes effect once that link is opened too.',
+    openApp: 'Open SmartKis',
+    closeNote: 'You can close this page.',
+  },
+  he: {
+    checking: 'רגע אחד',
+    checkingBody: 'מאמתים את כתובת המייל שלכם.',
+    deadTitle: 'הקישור הזה כבר לא בתוקף',
+    deadBody: 'קישור אימות תקף לשימוש אחד בלבד ולזמן קצר. פתחו את SmartKis ובקשו חדש — הרשמה חוזרת עם אותה כתובת תשלח קישור חדש.',
+    signupTitle: 'המייל אומת',
+    signupBody: 'הכתובת שלכם אומתה. פתחו את SmartKis והתחברו — הכול מוכן.',
+    changeTitle: 'הכתובת אומתה',
+    changeBody: 'הכתובת הזו אומתה עבור חשבון SmartKis שלכם.',
+    pending: 'נשאר צעד אחד: למען אבטחת החשבון ביקשנו אישור גם מהכתובת הקודמת. השינוי ייכנס לתוקף כשגם הקישור ההוא ייפתח.',
+    openApp: 'פתיחת SmartKis',
+    closeNote: 'אפשר לסגור את הדף.',
+  },
+};
+
+const he = (navigator.language || 'en').toLowerCase().startsWith('he');
+const t = he ? STRINGS.he : STRINGS.en;
+if (he) {
+  document.documentElement.lang = 'he';
+  document.documentElement.dir = 'rtl';
+}
+for (const el of document.querySelectorAll('[data-t]')) el.textContent = t[el.dataset.t];
+
+const show = (id) => {
+  for (const s of ['loading', 'error', 'done']) {
+    document.getElementById('stage-' + s).classList.toggle('hidden', s !== id);
+  }
+};
+const fail = (detail) => {
+  show('error');
+  if (detail) document.getElementById('errDetail').textContent = detail;
+};
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+});
+
+const query = new URLSearchParams(location.search);
+const tokenHash = query.get('token_hash');
+/* Anything Supabase did not send us is not a confirmation we can complete. */
+const rawType = query.get('type') || 'signup';
+const type = rawType === 'email_change' ? 'email_change' : 'signup';
+
+if (!tokenHash) {
+  fail(query.get('error_description') || '');
+} else {
+  const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
+
+  if (error) {
+    fail(error.message);
+  } else {
+    const { data } = await supabase.auth.getUser();
+    const user = data && data.user;
+
+    document.getElementById('doneTitle').textContent =
+      type === 'email_change' ? t.changeTitle : t.signupTitle;
+    document.getElementById('doneBody').textContent =
+      type === 'email_change' ? t.changeBody : t.signupBody;
+
+    if (user && user.email) {
+      const who = document.getElementById('who');
+      who.textContent = user.email;
+      who.classList.remove('hidden');
+    }
+
+    /* Still carrying a pending address means the other side has not confirmed
+       yet, so the change has not actually landed. Say so. */
+    if (type === 'email_change' && user && user.new_email) {
+      const pending = document.getElementById('pending');
+      pending.textContent = t.pending;
+      pending.classList.remove('hidden');
+    }
+
+    /* The session was a side effect of confirming, not something to keep. */
+    await supabase.auth.signOut();
+    show('done');
+
+    /* Only where a custom scheme can resolve; on a desktop it opens an error
+       dialog, which is a worse ending than a sentence saying you are done. */
+    if (/iphone|ipad|android/i.test(navigator.userAgent)) {
+      document.getElementById('openApp').classList.remove('hidden');
+    }
+  }
+}
+</script>
+</body>
+</html>

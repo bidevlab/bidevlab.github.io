@@ -58,6 +58,18 @@
 
   .langbar { margin-bottom: 22px; font-size: 15px; }
   .langbar a { margin-right: 14px; }
+
+  /* "Get the app" — the reason most people arrive, so it is a target, not a link. */
+  .get { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 22px 0 6px; }
+  .store {
+    display: inline-block; padding: 11px 20px; border-radius: 9px;
+    background: var(--ink); color: var(--paper); text-decoration: none;
+    font-weight: 700; font-size: 15px; line-height: 1.3;
+  }
+  .store.soon {
+    background: transparent; color: var(--faint);
+    border: 1px dashed var(--line); font-weight: 400;
+  }
   .foot { margin-top: 44px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
 
   /* The Hebrew half of the same document. */
@@ -83,10 +95,16 @@
   <p class="updated">BiDevLab</p>
 
   <p class="lead">
-    A Hebrew, right-to-left money tracker for individuals and small businesses.
+    A bilingual money tracker for individuals and small businesses — English and
+    Hebrew, switched inside the app, with Hebrew laid out fully right-to-left.
     Record income and expenses, set a budget and a savings goal, attach receipts,
     and export a PDF report.
   </p>
+
+  <div class="get">
+    <a class="store" href="https://apps.apple.com/app/id6808197697">Download on the App Store</a>
+    <span class="store soon">Android — coming soon</span>
+  </div>
 
   <div class="card">
     <h3>Legal documents</h3>
@@ -112,9 +130,15 @@
   <p class="updated">BiDevLab</p>
 
   <p class="lead">
-    אפליקציה בעברית לניהול כסף ליחידים ולעסקים קטנים. רישום הכנסות והוצאות,
+    אפליקציה דו-לשונית לניהול כסף ליחידים ולעסקים קטנים — עברית ואנגלית, החלפה
+    בתוך האפליקציה, והעברית מימין לשמאל לכל אורכה. רישום הכנסות והוצאות,
     תקציב ויעד חיסכון, צירוף קבלות וייצוא דוח PDF.
   </p>
+
+  <div class="get">
+    <a class="store" href="https://apps.apple.com/app/id6808197697">הורדה מ-App Store</a>
+    <span class="store soon">אנדרואיד — בקרוב</span>
+  </div>
 
   <div class="card">
     <h3>מסמכים משפטיים</h3>
